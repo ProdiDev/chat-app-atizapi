@@ -2,67 +2,33 @@ import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { abrirBanco, criarBanco, excluirBanco, fecharBanco, retornaUsuario } from '../../components/database/bancoUsuarios';
+import { criarBanco, inserirUsuarios } from '../../components/database/bancoUsuarios';
 
-export default function Login() {
+export default function Cadastro() {
+    const [nome, setNome] = useState('');
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [mostrarSenha, setMostrarSenha] = useState(false);
-    const [nome, setNome] = useState('');
-    const [tipo, setTipo] = useState(''); // 'cliente' ou 'administrador'
+    const [tipo, setTipo] = useState('cliente');
 
     useEffect(() => {
         criarBanco();
-        console.log('Banco de dados criado ou já existente');
     }, []);
 
-    function cadastrar() {
-        router.push('../loginscreen/cadastro');
-    };
-
-    async function deletarBanco() {
-        const banco = await abrirBanco();
-        await fecharBanco(banco);
-        console.log('Banco de dados fechado com sucesso.');
-        await excluirBanco();
-        alert('Banco de dados deletado com sucesso!');
-        router.push('../loginscreen/login');
-    }
-
-    const handleLogin = () => {
-        if (!email || !senha) {
+    async function handleCadastro() {
+        if (!nome || !email || !senha || !tipo) {
             alert('Por favor, preencha todos os campos.');
             return;
         }
-        retornaUsuario(email)
-            .then((usuario) => {
-                if (!usuario) {
-                    alert('Usuário não encontrado. Por favor, cadastre-se.');
-                    return;
-                }
-                if (usuario.senha !== senha) {
-                    alert('Senha incorreta. Tente novamente.');
-                    return;
-                }
-                if (usuario.senha === senha) {
-                    setNome(usuario.nome);
-                    setTipo(usuario.tipo);
-                    console.log(tipo);
-                    if (tipo !== 'administrador') {
-                        router.push('../telas/principal');
-                    } else {
-                        router.push('../telas-admin/principal');
-                    }
-                    alert('Login realizado!');
-                    console.log('Usuário logado:', usuario);
-                }
-            })
-            .catch((error) => {
-                console.error('Erro ao buscar usuário:', error);
-                alert('Erro ao buscar usuário. Tente novamente.');
-                return;
-            });
-    };
+        try {
+            await inserirUsuarios(nome, email, senha, tipo);
+            alert('Usuário cadastrado com sucesso!');
+            router.replace('../loginscreen/login');
+        } catch (e) {
+            console.log('Erro ao cadastrar usuário', e);
+            alert('Erro ao cadastrar usuário. Tente novamente.');
+        }
+    }
 
     return (
         <View style={styles.container}>
@@ -70,8 +36,18 @@ export default function Login() {
                 source={{ uri: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png' }}
                 style={styles.logo}
             />
-            <Text style={styles.titulo}>Bem-vindo!</Text>
-            <Text style={styles.subtitulo}>Faça login para continuar</Text>
+            <Text style={styles.titulo}>Cadastro</Text>
+            <Text style={styles.subtitulo}>Crie sua conta para continuar</Text>
+            <View style={styles.inputBox}>
+                <Icon name="account-outline" size={22} color="#888" style={styles.inputIcon} />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Nome"
+                    value={nome}
+                    onChangeText={setNome}
+                    autoCapitalize="words"
+                />
+            </View>
             <View style={styles.inputBox}>
                 <Icon name="email-outline" size={22} color="#888" style={styles.inputIcon} />
                 <TextInput
@@ -101,14 +77,37 @@ export default function Login() {
                     />
                 </TouchableOpacity>
             </View>
-            <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
-                <Text style={styles.loginBtnText}>Entrar</Text>
+            <View style={styles.tipoBox}>
+                <TouchableOpacity
+                    style={[
+                        styles.tipoBtn,
+                        tipo === 'cliente' && styles.tipoBtnAtivo
+                    ]}
+                    onPress={() => setTipo('cliente')}
+                >
+                    <Text style={[
+                        styles.tipoBtnText,
+                        tipo === 'cliente' && styles.tipoBtnTextAtivo
+                    ]}>Cliente</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[
+                        styles.tipoBtn,
+                        tipo === 'administrador' && styles.tipoBtnAtivo
+                    ]}
+                    onPress={() => setTipo('administrador')}
+                >
+                    <Text style={[
+                        styles.tipoBtnText,
+                        tipo === 'administrador' && styles.tipoBtnTextAtivo
+                    ]}>Administrador</Text>
+                </TouchableOpacity>
+            </View>
+            <TouchableOpacity style={styles.loginBtn} onPress={handleCadastro}>
+                <Text style={styles.loginBtnText}>Cadastrar</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={cadastrar}>
-                <Text style={styles.cadastroText}>Não tem conta? Cadastre-se</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={deletarBanco}>
-                <Text style={styles.cadastroText}>Deletar banco de dados</Text>
+            <TouchableOpacity onPress={() => router.replace('../loginscreen/login')}>
+                <Text style={styles.cadastroText}>Já tem conta? Faça login</Text>
             </TouchableOpacity>
         </View>
     );
@@ -157,6 +156,31 @@ const styles = StyleSheet.create({
         height: 48,
         fontSize: 16,
         color: '#222',
+    },
+    tipoBox: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+        marginBottom: 16,
+    },
+    tipoBtn: {
+        flex: 1,
+        paddingVertical: 12,
+        borderRadius: 12,
+        backgroundColor: '#F4F4F4',
+        alignItems: 'center',
+        marginHorizontal: 4,
+    },
+    tipoBtnAtivo: {
+        backgroundColor: '#e53935',
+    },
+    tipoBtnText: {
+        color: '#888',
+        fontSize: 15,
+        fontWeight: 'bold',
+    },
+    tipoBtnTextAtivo: {
+        color: '#fff',
     },
     loginBtn: {
         backgroundColor: '#e53935',
