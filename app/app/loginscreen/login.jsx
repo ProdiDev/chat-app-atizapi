@@ -1,8 +1,8 @@
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { criarTabelaUsuarios, adicionarUsuario, retornaUsuario, inserirUsuarios } from '../../components/database/bancoUsuarios';
+import { criarBanco, inserirUsuarios } from '../../components/database/bancoUsuarios';
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -11,7 +11,11 @@ export default function Login() {
     const [nome, setNome] = useState('');
     const [tipo, setTipo] = useState(''); // 'cliente' ou 'administrador'
 
-    const cadastrar = () => {
+    useEffect(() => {
+        criarBanco();
+    }, []);
+
+    function cadastrar() {
         const novoNome = "Otavio";
         const novoEmail = "otavioandre111@gmail.com";
         const novaSenha = "123456";
