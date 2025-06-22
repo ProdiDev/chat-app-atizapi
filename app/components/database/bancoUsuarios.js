@@ -19,6 +19,7 @@ export async function excluirBanco() {
 
 export async function inserirUsuarios(email, senha, nome, tipo) {
   let id = uuid.v4();
+  console.log("inserirUsuarios", id, email, senha, nome, tipo);
   const banco = await abrirBanco();
   const dados = await banco.runAsync("INSERT INTO compras (id, email, senha, nome, tipo) VALUES (?, ?, ?, ?, ?)", [id, email, senha, nome, tipo]);
   console.log("inserirProdutos", dados.changes);

@@ -13,6 +13,7 @@ export default function Login() {
 
     useEffect(() => {
         criarBanco();
+        console.log('Banco de dados criado ou já existente');
     }, []);
 
     function cadastrar() {
@@ -20,17 +21,22 @@ export default function Login() {
         const novoEmail = "otavioandre111@gmail.com";
         const novaSenha = "123456";
         const novoTipo = "administrador";
+        console.log('Cadastrando usuário:', novoNome, novoEmail, novaSenha, novoTipo);
 
         if (!novoNome || !novoEmail || !novaSenha || !novoTipo) {
             alert('Por favor, preencha todos os campos.');
+            console.log('Campos incompletos');
             return;
         }
 
         inserirUsuarios({ nome: novoNome, email: novoEmail, senha: novaSenha, tipo: novoTipo }, (result) => {
+            console.log('Resultado da inserção:', result);
             if (result.rowsAffected > 0) {
+                console.log('Usuário cadastrado com sucesso:', novoNome);
                 alert('Usuário cadastrado com sucesso!');
                 router.push('../telas-admin/principal');
             } else {
+                console.log('Erro ao cadastrar usuário');
                 alert('Erro ao cadastrar usuário. Tente novamente.');
             }
         });
