@@ -1,35 +1,35 @@
 import * as SQLite from 'expo-sqlite';
 const db = SQLite.openDatabase('italugueis.db');
 
-export function criarTabelaCasas() {
+export function criarTabelaUsuarios() {
   db.transaction(tx => {
     tx.executeSql(
-      `CREATE TABLE IF NOT EXISTS casas (
+      `CREATE TABLE IF NOT EXISTS usuarios (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        titulo TEXT,
-        imagem TEXT,
-        localizacao TEXT,
-        preco TEXT
+        nome TEXT,
+        email TEXT UNIQUE,
+        senha TEXT,
+        tipo TEXT
       );`
     );
   });
 }
 
-export function adicionarCasa({ titulo, imagem, localizacao, preco }, callback) {
+export function adicionarUsuario({ nome, email, senha, tipo }, callback) {
   db.transaction(tx => {
     tx.executeSql(
-      'INSERT INTO casas (titulo, imagem, localizacao, preco) VALUES (?, ?, ?, ?);',
-      [titulo, imagem, localizacao, preco],
+      'INSERT INTO usuarios (nome, email, senha, tipo) VALUES (?, ?, ?, ?);',
+      [nome, email, senha, tipo],
       (_, result) => callback && callback(result),
       (_, error) => { console.error(error); return false; }
     );
   });
 }
 
-export function listarCasas(callback) {
+export function listarUsuarios(callback) {
   db.transaction(tx => {
     tx.executeSql(
-      'SELECT * FROM casas;',
+      'SELECT * FROM usuarios;',
       [],
       (_, { rows }) => callback && callback(rows._array),
       (_, error) => { console.error(error); return false; }
@@ -37,10 +37,10 @@ export function listarCasas(callback) {
   });
 }
 
-export function removerCasa(id, callback) {
+export function removerUsuario(id, callback) {
   db.transaction(tx => {
     tx.executeSql(
-      'DELETE FROM casas WHERE id = ?;',
+      'DELETE FROM usuarios WHERE id = ?;',
       [id],
       (_, result) => callback && callback(result),
       (_, error) => { console.error(error); return false; }

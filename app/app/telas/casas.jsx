@@ -60,6 +60,20 @@ const casas = [
         localizacao: 'Natal, RN',
         preco: 'R$ 500/dia',
     },
+    {
+        id: '9',
+        titulo: 'Casa Rústica',
+        imagem: 'https://via.placeholder.com/150',
+        localizacao: 'Chapada Diamantina, BA',
+        preco: 'R$ 380/dia',
+    },
+    {
+        id: '10',
+        titulo: 'Casa com Piscina',
+        imagem: 'https://via.placeholder.com/150',
+        localizacao: 'Florianópolis, SC',
+        preco: 'R$ 550/dia',
+    },
 ];
 
 const numColumns = 2;
