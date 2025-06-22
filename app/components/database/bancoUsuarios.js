@@ -1,49 +1,39 @@
 import * as SQLite from 'expo-sqlite';
-const db = SQLite.openDatabase('italugueis.db');
+import * as uuid from 'uuid';
 
-export function criarTabelaUsuarios() {
-  db.transaction(tx => {
-    tx.executeSql(
-      `CREATE TABLE IF NOT EXISTS usuarios (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT,
-        email TEXT UNIQUE,
-        senha TEXT,
-        tipo TEXT
-      );`
-    );
-  });
+export async function abrirBanco() {
+  const db = await SQLite.openDatabaseAsync('italugueis.db');
+  return db;
 }
 
-export function adicionarUsuario({ nome, email, senha, tipo }, callback) {
-  db.transaction(tx => {
-    tx.executeSql(
-      'INSERT INTO usuarios (nome, email, senha, tipo) VALUES (?, ?, ?, ?);',
-      [nome, email, senha, tipo],
-      (_, result) => callback && callback(result),
-      (_, error) => { console.error(error); return false; }
-    );
-  });
+export async function criarBanco() {
+  const banco = await abrirBanco();
+  const result = await banco.runAsync("CREATE TABLE IF NOT EXISTS usuarios (id TEXT PRIMARY KEY, email TEXT NOT NULL, senha TEXT, nome TEXT, tipo TEXT); ")
+  console.log(result.changes)
 }
 
-export function listarUsuarios(callback) {
-  db.transaction(tx => {
-    tx.executeSql(
-      'SELECT * FROM usuarios;',
-      [],
-      (_, { rows }) => callback && callback(rows._array),
-      (_, error) => { console.error(error); return false; }
-    );
-  });
+export async function excluirBanco() {
+  await SQLite.deleteDatabaseAsync('italugueis.db');
+  console.log("Banco de dados excluído com sucesso.");
 }
 
-export function removerUsuario(id, callback) {
-  db.transaction(tx => {
-    tx.executeSql(
-      'DELETE FROM usuarios WHERE id = ?;',
-      [id],
-      (_, result) => callback && callback(result),
-      (_, error) => { console.error(error); return false; }
-    );
-  });
+export async function inserirUsuarios(email, senha, nome, tipo) {
+  let id = uuid.v4();
+  const banco = await abrirBanco();
+  const dados = await banco.runAsync("INSERT INTO compras (id, email, senha, nome, tipo) VALUES (?, ?, ?, ?, ?)", [id, email, senha, nome, tipo]);
+  console.log("inserirProdutos", dados.changes);
+  return id;
+}
+
+export async function removerUsuarios(nome) {
+  const banco = await abrirBanco();
+  const dados = await banco.runAsync("DELETE FROM usuarios WHERE nome = '?' ", [nome]);
+  console.log("removerUsuarios", dados.changes);
+}
+
+export async function retornaUsuario() {
+  const banco = await abrirBanco();
+  const dados = await banco.getAsync("SELECT FROM usuarios WHERE nome = 'Otavio'");
+  console.log("retornaUsuario", dados);
+  return dados;
 }

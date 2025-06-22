@@ -2,15 +2,50 @@ import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { criarTabelaUsuarios, adicionarUsuario, retornaUsuario } from '../../components/database/bancoUsuarios';
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [mostrarSenha, setMostrarSenha] = useState(false);
+    const [nome, setNome] = useState('');
+    const [tipo, setTipo] = useState(''); // 'cliente' ou 'administrador'
+
+    const cadastrar = () => {
+        const novoNome = "Otavio";
+        const novoEmail = "otavioandre111@gmail.com";
+        const novaSenha = "123456";
+        const novoTipo = "administrador";
+
+        if (!novoNome || !novoEmail || !novaSenha || !novoTipo) {
+            alert('Por favor, preencha todos os campos.');
+            return;
+        }
+
+        adicionarUsuario({ nome: novoNome, email: novoEmail, senha: novaSenha, tipo: novoTipo }, (result) => {
+            if (result.rowsAffected > 0) {
+                alert('Usuário cadastrado com sucesso!');
+                router.push('../telas-admin/principal');
+            } else {
+                alert('Erro ao cadastrar usuário. Tente novamente.');
+            }
+        });
+    };
 
     const handleLogin = () => {
-        router.push('../telas/principal'); // Redireciona para a tela principal após o login
-        // Aqui você pode adicionar a lógica de autenticação
+        if (!email || !senha) {
+            alert('Por favor, preencha todos os campos.');
+            return;
+        }
+        // Aqui você deveria buscar o usuário no banco e validar senha
+        // Exemplo fictício:
+        // retornaUsuario(email, senha, (usuario) => { ... });
+
+        if (tipo !== 'administrador') {
+            router.push('../telas/principal');
+        } else {
+            router.push('../telas-admin/principal');
+        }
         alert('Login realizado!');
     };
 
@@ -54,7 +89,7 @@ export default function Login() {
             <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
                 <Text style={styles.loginBtnText}>Entrar</Text>
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={cadastrar}>
                 <Text style={styles.cadastroText}>Não tem conta? Cadastre-se</Text>
             </TouchableOpacity>
         </View>
