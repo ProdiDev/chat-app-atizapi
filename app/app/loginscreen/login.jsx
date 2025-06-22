@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { criarTabelaUsuarios, adicionarUsuario, retornaUsuario } from '../../components/database/bancoUsuarios';
+import { criarTabelaUsuarios, adicionarUsuario, retornaUsuario, inserirUsuarios } from '../../components/database/bancoUsuarios';
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -22,7 +22,7 @@ export default function Login() {
             return;
         }
 
-        adicionarUsuario({ nome: novoNome, email: novoEmail, senha: novaSenha, tipo: novoTipo }, (result) => {
+        inserirUsuarios({ nome: novoNome, email: novoEmail, senha: novaSenha, tipo: novoTipo }, (result) => {
             if (result.rowsAffected > 0) {
                 alert('Usuário cadastrado com sucesso!');
                 router.push('../telas-admin/principal');
