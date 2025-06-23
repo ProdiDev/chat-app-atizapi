@@ -1,16 +1,45 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { router } from 'expo-router';
+import { retornaUsuario } from '../../components/database/bancoUsuarios';
 
 export default function Perfil() {
-    // Dados fictícios, substitua por dados reais do usuário se desejar
-    const usuario = {
-        nome: 'Otávio Silva',
-        email: 'otavio@email.com',
-        foto: 'https://randomuser.me/api/portraits/men/32.jpg',
-        telefone: '(85) 99999-9999',
-    };
+    // Troque este email pelo email do usuário logado (ex: via contexto ou prop)
+    const emailUsuarioLogado = 'ronaldinho@gmail.com';
+
+    const [usuario, setUsuario] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchUsuario() {
+            try {
+                const user = await retornaUsuario(emailUsuarioLogado);
+                setUsuario(user);
+            } catch (e) {
+                setUsuario(null);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchUsuario();
+    }, []);
+
+    if (loading) {
+        return (
+            <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+                <ActivityIndicator size="large" color="#388637" />
+            </View>
+        );
+    }
+
+    if (!usuario) {
+        return (
+            <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+                <Text style={{ color: '#888', fontSize: 18 }}>Usuário não encontrado.</Text>
+            </View>
+        );
+    }
 
     return (
         <View style={styles.container}>
@@ -21,23 +50,22 @@ export default function Perfil() {
                 <Text style={styles.headerText}>Perfil</Text>
                 <View style={{ width: 28 }} />
             </View>
+            <Image
+                source={require('../../components/imagens/perfil/perfil1.png')}
+                style={styles.coverImage}
+            />
             <View style={styles.profileBox}>
-                <Image source={{ uri: usuario.foto }} style={styles.avatar} />
                 <Text style={styles.nome}>{usuario.nome}</Text>
                 <Text style={styles.email}>{usuario.email}</Text>
-            </View>
-            <View style={styles.infoBox}>
-                <Icon name="phone" size={22} color="#888" />
-                <Text style={styles.infoText}>{usuario.telefone}</Text>
             </View>
             <View style={styles.infoBox}>
                 <Icon name="email" size={22} color="#888" />
                 <Text style={styles.infoText}>{usuario.email}</Text>
             </View>
-            <TouchableOpacity style={styles.editBtn}>
-                <Icon name="account-edit" size={20} color="#fff" />
-                <Text style={styles.editBtnText}>Editar perfil</Text>
-            </TouchableOpacity>
+            <View style={styles.infoBox}>
+                <Icon name="account" size={22} color="#888" />
+                <Text style={styles.infoText}>{usuario.tipo}</Text>
+            </View>
         </View>
     );
 }
@@ -47,13 +75,14 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
         paddingTop: 32,
-        paddingHorizontal: 24,
+        paddingHorizontal: 0,
     },
     headerRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 24,
+        marginBottom: 16,
         justifyContent: 'space-between',
+        paddingHorizontal: 24,
     },
     headerText: {
         fontSize: 22,
@@ -62,16 +91,16 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         flex: 1,
     },
+    coverImage: {
+        width: '100%',
+        height: 180,
+        resizeMode: 'stretch',
+        marginBottom: 16,
+        backgroundColor: '#eee',
+    },
     profileBox: {
         alignItems: 'center',
         marginBottom: 32,
-    },
-    avatar: {
-        width: 96,
-        height: 96,
-        borderRadius: 48,
-        marginBottom: 12,
-        backgroundColor: '#eee',
     },
     nome: {
         fontSize: 20,
@@ -91,6 +120,7 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         padding: 12,
         marginBottom: 12,
+        marginHorizontal: 24,
     },
     infoText: {
         fontSize: 16,
@@ -100,11 +130,12 @@ const styles = StyleSheet.create({
     editBtn: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#e53935',
+        backgroundColor: '#388637',
         borderRadius: 12,
         paddingVertical: 12,
         justifyContent: 'center',
         marginTop: 32,
+        marginHorizontal: 24,
     },
     editBtnText: {
         color: '#fff',

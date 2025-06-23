@@ -21,7 +21,7 @@ export async function criarBanco() {
   try {
     const banco = await abrirBanco();
     await banco.runAsync(
-      "CREATE TABLE IF NOT EXISTS usuarios (id TEXT PRIMARY KEY, email TEXT NOT NULL, senha TEXT, nome TEXT, tipo TEXT);"
+      "CREATE TABLE IF NOT EXISTS usuarios (id TEXT PRIMARY KEY, email TEXT NOT NULL, senha TEXT, nome TEXT, tipo TEXT, imagem TEXT);" // Adiciona o campo imagem
     );
     await fecharBanco(banco);
     console.log("Tabela 'usuarios' criada ou já existente.");
@@ -38,15 +38,15 @@ export async function excluirBanco() {
 }
 
 // Insere um novo usuário
-export async function inserirUsuarios(nome, email, senha, tipo) {
+export async function inserirUsuarios(nome, email, senha, tipo, imagem) {
   const id = uuid.v4();
   const banco = await abrirBanco();
   await banco.runAsync(
-    "INSERT INTO usuarios (id, nome, email, senha, tipo) VALUES (?, ?, ?, ?, ?)",
-    [id, nome, email, senha, tipo]
+    "INSERT INTO usuarios (id, nome, email, senha, tipo, imagem) VALUES (?, ?, ?, ?, ?, ?)",
+    [id, nome, email, senha, tipo, imagem]
   );
   await fecharBanco(banco);
-  console.log("Usuário inserido:", id, nome, email, tipo);
+  console.log("Usuário inserido:", id, nome, email, tipo, imagem);
   return id;
 }
 

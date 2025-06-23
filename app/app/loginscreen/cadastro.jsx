@@ -1,8 +1,16 @@
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, FlatList } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { criarBanco, inserirUsuarios } from '../../components/database/bancoUsuarios';
+
+// Imagens disponíveis para perfil
+const imagensPerfil = [
+    require('../../components/imagens/perfil/perfil1.png'),
+    require('../../components/imagens/perfil/perfil2.jpg'),
+    require('../../components/imagens/perfil/perfil3.jpg'),
+    // Adicione mais imagens conforme necessário
+];
 
 export default function Cadastro() {
     const [nome, setNome] = useState('');
@@ -10,18 +18,20 @@ export default function Cadastro() {
     const [senha, setSenha] = useState('');
     const [mostrarSenha, setMostrarSenha] = useState(false);
     const [tipo, setTipo] = useState('cliente');
+    const [imagemSelecionada, setImagemSelecionada] = useState(imagensPerfil[0]);
 
     useEffect(() => {
         criarBanco();
     }, []);
 
     async function handleCadastro() {
-        if (!nome || !email || !senha || !tipo) {
+        if (!nome || !email || !senha || !tipo || !imagemSelecionada) {
             alert('Por favor, preencha todos os campos.');
             return;
         }
         try {
-            await inserirUsuarios(nome, email, senha, tipo);
+            // Salva o caminho relativo da imagem selecionada
+            await inserirUsuarios(nome, email, senha, tipo, Image.resolveAssetSource(imagemSelecionada).uri);
             alert('Usuário cadastrado com sucesso!');
             router.replace('../loginscreen/login');
         } catch (e) {
@@ -32,12 +42,34 @@ export default function Cadastro() {
 
     return (
         <View style={styles.container}>
+            {/* Foto de perfil selecionada */}
             <Image
-                source={{ uri: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png' }}
-                style={styles.logo}
+                source={imagemSelecionada}
+                style={{
+                    width: 100,
+                    height: 100,
+                    borderRadius: 50,
+                    marginBottom: 8,
+                    alignSelf: 'center',
+                    borderWidth: 2,
+                    borderColor: '#388637'
+                }}
             />
-            <Text style={styles.titulo}>Cadastro</Text>
-            <Text style={styles.subtitulo}>Crie sua conta para continuar</Text>
+            <Text style={styles.subtitulo}>Escolha sua foto de perfil</Text>
+            <View style={{ flexDirection: 'row', marginBottom: 16 }}>
+                {imagensPerfil.map((img, idx) => (
+                    <TouchableOpacity key={idx} onPress={() => setImagemSelecionada(img)}>
+                        <Image
+                            source={img}
+                            style={[
+                                styles.imagemPerfilMini,
+                                imagemSelecionada === img && styles.imagemPerfilMiniSelecionada
+                            ]}
+                        />
+                    </TouchableOpacity>
+                ))}
+            </View>
+
             <View style={styles.inputBox}>
                 <Icon name="account-outline" size={22} color="#888" style={styles.inputIcon} />
                 <TextInput
@@ -121,13 +153,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    logo: {
-        width: 90,
-        height: 90,
-        borderRadius: 45,
-        marginBottom: 24,
-        backgroundColor: '#eee',
-    },
     titulo: {
         fontSize: 24,
         fontWeight: 'bold',
@@ -137,7 +162,7 @@ const styles = StyleSheet.create({
     subtitulo: {
         fontSize: 15,
         color: '#888',
-        marginBottom: 24,
+        marginBottom: 8,
     },
     inputBox: {
         flexDirection: 'row',
@@ -172,7 +197,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 4,
     },
     tipoBtnAtivo: {
-        backgroundColor: '#e53935',
+        backgroundColor: '#388637',
     },
     tipoBtnText: {
         color: '#888',
@@ -183,7 +208,7 @@ const styles = StyleSheet.create({
         color: '#fff',
     },
     loginBtn: {
-        backgroundColor: '#e53935',
+        backgroundColor: '#388637',
         borderRadius: 12,
         paddingVertical: 14,
         alignItems: 'center',
@@ -197,8 +222,19 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     cadastroText: {
-        color: '#e53935',
+        color: '#005205',
         fontSize: 15,
         marginTop: 8,
+    },
+    imagemPerfilMini: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        marginHorizontal: 6,
+        borderWidth: 2,
+        borderColor: 'transparent',
+    },
+    imagemPerfilMiniSelecionada: {
+        borderColor: '#388637',
     },
 });

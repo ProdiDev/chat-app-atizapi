@@ -67,11 +67,11 @@ export default function Login() {
     return (
         <View style={styles.container}>
             <Image
-                source={{ uri: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png' }}
-                style={styles.logo}
+                source={{ uri: 'https://i1.sndcdn.com/avatars-WhC8h2jpeTUzFPck-lYXDIQ-t1080x1080.jpg' }}
+                style={{ width: '100%', height: 100, marginBottom: 24, resizeMode: 'stretch' }} // Imagem esticada
             />
-            <Text style={styles.titulo}>Bem-vindo!</Text>
-            <Text style={styles.subtitulo}>Faça login para continuar</Text>
+            <Text style={styles.titulo}>LANÇAMENTO!!!!!!!!</Text>
+            <Text style={styles.subtitulo}>Faça login para conversar</Text>
             <View style={styles.inputBox}>
                 <Icon name="email-outline" size={22} color="#888" style={styles.inputIcon} />
                 <TextInput
@@ -102,10 +102,10 @@ export default function Login() {
                 </TouchableOpacity>
             </View>
             <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
-                <Text style={styles.loginBtnText}>Entrar</Text>
+                <Text style={styles.loginBtnText}>Conversar</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={cadastrar}>
-                <Text style={styles.cadastroText}>Não tem conta? Cadastre-se</Text>
+                <Text style={styles.cadastroText}>Não tem conta? Cadastre-se agora</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={deletarBanco}>
                 <Text style={styles.cadastroText}>Deletar banco de dados</Text>
@@ -121,13 +121,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    logo: {
-        width: 90,
-        height: 90,
-        borderRadius: 45,
-        marginBottom: 24,
-        backgroundColor: '#eee',
     },
     titulo: {
         fontSize: 24,
@@ -159,7 +152,7 @@ const styles = StyleSheet.create({
         color: '#222',
     },
     loginBtn: {
-        backgroundColor: '#e53935',
+        backgroundColor: '#388637',
         borderRadius: 12,
         paddingVertical: 14,
         alignItems: 'center',
@@ -173,7 +166,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     cadastroText: {
-        color: '#e53935',
+        color: '#005205',
         fontSize: 15,
         marginTop: 8,
     },

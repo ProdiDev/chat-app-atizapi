@@ -1,62 +1,65 @@
-import { router } from 'expo-router';
-import React from 'react';
-import { View, Text, TextInput, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export default function HomeScreen() {
+  const [mensagem, setMensagem] = useState('');
+  const [conversa, setConversa] = useState([
+    { id: '1', texto: 'Olá! Seja bem-vindo ao chat.', enviado: false },
+    { id: '2', texto: 'Oi! Gostaria de conversar.', enviado: true },
+  ]);
+  const flatListRef = useRef(null);
+
+  const enviarMensagem = () => {
+    if (mensagem.trim() === '') return;
+    setConversa([...conversa, { id: Date.now().toString(), texto: mensagem, enviado: true }]);
+    setMensagem('');
+    setTimeout(() => {
+      flatListRef.current?.scrollToEnd({ animated: true });
+    }, 100);
+  };
+
+  const renderItem = ({ item }) => (
+    <View style={[
+      styles.balao,
+      item.enviado ? styles.balaoEnviado : styles.balaoRecebido
+    ]}>
+      <Text style={styles.textoBalao}>{item.texto}</Text>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <Icon name="magnify" size={22} color="#bbb" style={{ marginLeft: 10 }} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Buscar"
-          placeholderTextColor="#bbb"
+      <View style={styles.headerRow}>
+        <Text style={styles.header}>Chat Online</Text>
+      </View>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={80}
+      >
+        <FlatList
+          ref={flatListRef}
+          data={conversa}
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+          contentContainerStyle={styles.lista}
+          onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
         />
-      </View>
-
-      {/* Menu Icons */}
-      <View style={styles.menuRow}>
-        <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/telas/casas')}>
-          <Icon name="home-outline" size={28} />
-          <Text style={styles.menuText}>Casas</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/telas/quarto')}>
-          <Icon name="bed-outline" size={28} />
-          <Text style={styles.menuText}>Quartos</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/telas/salvos')}>
-          <Icon name="heart-outline" size={28} />
-          <Text style={styles.menuText}>Salvos</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.divider} />
-
-      <ScrollView>
-        {/* Escolha dos hospedes */}
-        <Text style={styles.sectionTitle}>Escolha dos hospedes</Text>
-        <View style={styles.horizontalScroll}>
-          <View style={styles.card}>
-            {/* Imagem do imóvel */}
-          </View>
-          <View style={styles.card}>
-            {/* Imagem do imóvel */}
-          </View>
+        <View style={styles.inputRow}>
+          <TextInput
+            style={styles.input}
+            placeholder="Digite sua mensagem..."
+            value={mensagem}
+            onChangeText={setMensagem}
+            onSubmitEditing={enviarMensagem}
+            returnKeyType="send"
+          />
+          <TouchableOpacity style={styles.sendBtn} onPress={enviarMensagem}>
+            <Icon name="send" size={24} color="#fff" />
+          </TouchableOpacity>
         </View>
-        <View style={styles.cardLabelRow}>
-          <Text style={styles.cardLabel}>imovel_Titulo</Text>
-          <Text style={styles.cardLabel}>Imovel_Titulo</Text>
-        </View>
-        <View style={styles.divider} />
-
-        {/* Casas proximas */}
-        <Text style={styles.sectionTitle}>Casas proximas</Text>
-        <View style={styles.cardLarge}>
-          {/* Imagem do imóvel */}
-        </View>
-      </ScrollView>
-
+      </KeyboardAvoidingView>
     </View >
   );
 }
@@ -158,5 +161,67 @@ const styles = StyleSheet.create({
     olor: '#000',
     fontWeight: 'bold',
     marginTop: 2
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+  },
+  header: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    flex: 1,
+  },
+  lista: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    flexGrow: 1,
+    justifyContent: 'flex-end',
+  },
+  balao: {
+    maxWidth: '75%',
+    borderRadius: 16,
+    padding: 12,
+    marginBottom: 8,
+  },
+  balaoEnviado: {
+    backgroundColor: '#388637',
+    alignSelf: 'flex-end',
+  },
+  balaoRecebido: {
+    backgroundColor: '#F4F4F4',
+    alignSelf: 'flex-start',
+  },
+  textoBalao: {
+    color: '#222',
+    fontSize: 16,
+  },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderColor: '#eee',
+  },
+  input: {
+    flex: 1,
+    height: 44,
+    backgroundColor: '#F4F4F4',
+    borderRadius: 22,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    marginRight: 8,
+    color: '#222',
+  },
+  sendBtn: {
+    backgroundColor: '#388637',
+    borderRadius: 22,
+    padding: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
