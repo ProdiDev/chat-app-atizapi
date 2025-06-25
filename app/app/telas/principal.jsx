@@ -1,31 +1,71 @@
-import React, { useState, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { listarMensagens, inserirMensagem, removerMensagemPorId } from '../../components/database/bancoChat';
+
+const EMAIL_USUARIO = 'ronaldinho@gmail.com'; // Troque pelo email do usuário logado
+const EMAIL_DESTINATARIO = 'admin@admin.com'; // Troque conforme necessário
 
 export default function HomeScreen() {
   const [mensagem, setMensagem] = useState('');
-  const [conversa, setConversa] = useState([
-    { id: '1', texto: 'Olá! Seja bem-vindo ao chat.', enviado: false },
-    { id: '2', texto: 'Oi! Gostaria de conversar.', enviado: true },
-  ]);
+  const [conversa, setConversa] = useState([]);
   const flatListRef = useRef(null);
 
-  const enviarMensagem = () => {
-    if (mensagem.trim() === '') return;
-    setConversa([...conversa, { id: Date.now().toString(), texto: mensagem, enviado: true }]);
-    setMensagem('');
+  // Carrega as mensagens do banco ao abrir a tela
+  useEffect(() => {
+    carregarMensagens();
+  }, []);
+
+  async function carregarMensagens() {
+    const msgs = await listarMensagens(EMAIL_USUARIO, EMAIL_DESTINATARIO);
+    setConversa(msgs.map(msg => ({
+      id: msg.id,
+      texto: msg.mensagem,
+      enviado: msg.remetente === EMAIL_USUARIO,
+      dataEnvio: msg.dataEnvio
+    })));
     setTimeout(() => {
       flatListRef.current?.scrollToEnd({ animated: true });
     }, 100);
+  }
+
+  // Salva mensagem no banco e atualiza a tela
+  const enviarMensagem = async () => {
+    if (mensagem.trim() === '') return;
+    const dataEnvio = new Date().toISOString();
+    await inserirMensagem(EMAIL_USUARIO, EMAIL_DESTINATARIO, mensagem, dataEnvio);
+    setMensagem('');
+    await carregarMensagens();
+  };
+
+  // Remove mensagem do banco e da tela
+  const excluirMensagem = async (id) => {
+    await removerMensagemPorId(id);
+    await carregarMensagens();
+  };
+
+  const handleLongPress = (id) => {
+    Alert.alert(
+      'Excluir mensagem',
+      'Deseja excluir esta mensagem?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Excluir', style: 'destructive', onPress: () => excluirMensagem(id) }
+      ]
+    );
   };
 
   const renderItem = ({ item }) => (
-    <View style={[
-      styles.balao,
-      item.enviado ? styles.balaoEnviado : styles.balaoRecebido
-    ]}>
+    <TouchableOpacity
+      onLongPress={() => handleLongPress(item.id)}
+      activeOpacity={0.7}
+      style={[
+        styles.balao,
+        item.enviado ? styles.balaoEnviado : styles.balaoRecebido
+      ]}
+    >
       <Text style={styles.textoBalao}>{item.texto}</Text>
-    </View>
+    </TouchableOpacity>
   );
 
   return (

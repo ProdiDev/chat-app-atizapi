@@ -1,7 +1,9 @@
-import React, { use, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { abrirBanco, listarUsuarios } from '../../components/database/bancoUsuarios';
+import { router } from 'expo-router';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export default function HomeScreen() {
   const [usuarios, setUsuarios] = useState([]);
@@ -19,6 +21,25 @@ export default function HomeScreen() {
       <View style={styles.header}>
         <Text>Gerenciamento</Text>
       </View>
+
+      <TouchableOpacity
+        style={styles.chatBtn}
+        onPress={() => router.push('/telas-admin/chat-admin')}
+      >
+        <Icon name="chat" size={22} color="#fff" />
+        <Text style={styles.chatBtnText}>Ir para Chat Admin</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.chatBtn}
+        onPress={() => router.push('/telas-admin/perfil')}
+      >
+        <Icon name="chat" size={22} color="#fff" />
+        <Text style={styles.chatBtnText}>Perfil</Text>
+      </TouchableOpacity>
+
+
+
       <FlatList
         data={usuarios}
         keyExtractor={item => item.id}
@@ -53,6 +74,23 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     margin: 16,
     height: 40,
+  },
+  chatBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#388637',
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    marginHorizontal: 16,
+    marginBottom: 12,
+    justifyContent: 'center',
+  },
+  chatBtnText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginLeft: 8,
   },
   usuarioBox: {
     backgroundColor: '#F4F4F4',

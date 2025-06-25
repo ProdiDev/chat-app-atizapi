@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { abrirBanco, criarBanco, excluirBanco, fecharBanco, retornaUsuario } from '../../components/database/bancoUsuarios';
+import { useAuth } from '../../components/AuthContext';
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -10,6 +11,7 @@ export default function Login() {
     const [mostrarSenha, setMostrarSenha] = useState(false);
     const [nome, setNome] = useState('');
     const [tipo, setTipo] = useState(''); // 'cliente' ou 'administrador'
+    const { setUsuario } = useAuth();
 
     useEffect(() => {
         criarBanco();
@@ -45,10 +47,11 @@ export default function Login() {
                     return;
                 }
                 if (usuario.senha === senha) {
+                    setUsuario(usuario); // <-- Salva o usuário logado no contexto
                     setNome(usuario.nome);
                     setTipo(usuario.tipo);
                     console.log(tipo);
-                    if (tipo !== 'administrador') {
+                    if (usuario.tipo !== 'administrador') {
                         router.push('../telas/principal');
                     } else {
                         router.push('../telas-admin/principal');
