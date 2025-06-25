@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, ActivityIndicator } fr
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { router } from 'expo-router';
 import { retornaUsuario } from '../../components/database/bancoUsuarios';
+import { Image as RNImage } from 'react-native'; // Para resolver asset source caso necessário
 
 export default function Perfil() {
     // Troque este email pelo email do usuário logado (ex: via contexto ou prop)
@@ -51,7 +52,13 @@ export default function Perfil() {
                 <View style={{ width: 28 }} />
             </View>
             <Image
-                source={require('../../components/imagens/perfil/perfil1.png')}
+                source={
+                    usuario.imagem && usuario.imagem.startsWith('file')
+                        ? { uri: usuario.imagem }
+                        : usuario.imagem
+                            ? { uri: usuario.imagem }
+                            : require('../../components/imagens/perfil/perfil1.png')
+                }
                 style={styles.coverImage}
             />
             <View style={styles.profileBox}>
