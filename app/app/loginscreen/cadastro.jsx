@@ -9,7 +9,6 @@ const imagensPerfil = [
     require('../../components/imagens/perfil/perfil1.png'),
     require('../../components/imagens/perfil/perfil2.jpg'),
     require('../../components/imagens/perfil/perfil3.jpg'),
-    // Adicione mais imagens conforme necessário
 ];
 
 export default function Cadastro() {

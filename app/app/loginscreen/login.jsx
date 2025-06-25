@@ -1,8 +1,9 @@
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Button, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { abrirBanco, criarBanco, excluirBanco, fecharBanco, retornaUsuario } from '../../components/database/bancoUsuarios';
+import { excluirBancoChat, abrirBancoChat, fecharBancoChat } from '../../components/database/bancoChat'; // ajuste o caminho se necessário
 import { useAuth } from '../../components/AuthContext';
 
 export default function Login() {
@@ -30,6 +31,15 @@ export default function Login() {
         alert('Banco de dados deletado com sucesso!');
         router.push('../loginscreen/login');
     }
+
+    const handleExcluirBanco = async () => {
+        const banco = await abrirBancoChat();
+        await fecharBancoChat(banco);
+        console.log('Banco de chat fechado com sucesso.');
+        await excluirBancoChat();
+        alert('Banco de chat deletado com sucesso!');
+        router.push('../loginscreen/login');
+    };
 
     const handleLogin = () => {
         if (!email || !senha) {
@@ -110,9 +120,16 @@ export default function Login() {
             <TouchableOpacity onPress={cadastrar}>
                 <Text style={styles.cadastroText}>Não tem conta? Cadastre-se agora</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={deletarBanco}>
+            {/* <TouchableOpacity onPress={deletarBanco}>
                 <Text style={styles.cadastroText}>Deletar banco de dados</Text>
             </TouchableOpacity>
+            <View style={{ margin: 20 }}>
+                <Button
+                    title="Excluir Banco de Chat (TEMPORÁRIO)"
+                    color="red"
+                    onPress={handleExcluirBanco}
+                />
+            </View> */}
         </View>
     );
 }

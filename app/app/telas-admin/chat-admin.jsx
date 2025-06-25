@@ -2,14 +2,17 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { listarMensagens, inserirMensagem, removerMensagemPorId, criarBancoChat } from '../../components/database/bancoChat';
-
-const EMAIL_ADMIN = 'admin@admin.com';
-const EMAIL_USUARIO = 'ronaldinho@gmail.com';
+import { useAuth } from '../../components/AuthContext'; // ADICIONADO
 
 export default function ChatAdmin() {
     const [mensagem, setMensagem] = useState('');
     const [conversa, setConversa] = useState([]);
     const flatListRef = useRef(null);
+    const { usuario } = useAuth(); // ADICIONADO
+
+    // Usa o email do contexto
+    const EMAIL_ADMIN = usuario?.email || '';
+    const EMAIL_USUARIO = '';
 
     // Carrega as mensagens do banco ao abrir a tela
     useEffect(() => {
@@ -21,12 +24,13 @@ export default function ChatAdmin() {
     }, []);
 
     async function carregarMensagens() {
-        // Mostra só a conversa entre admin e usuário
-        const msgs = await listarMensagens(EMAIL_ADMIN, EMAIL_USUARIO);
+        const msgs = await listarMensagens();
         setConversa(msgs.map(msg => ({
             id: msg.id,
             texto: msg.mensagem,
             enviado: msg.remetente === EMAIL_ADMIN,
+            remetente: msg.remetente, // Adiciona o remetente
+            dataEnvio: msg.dataEnvio
         })));
         setTimeout(() => {
             if (flatListRef.current) {
@@ -61,17 +65,22 @@ export default function ChatAdmin() {
     };
 
     const renderItem = ({ item }) => (
-        <View style={[
-            styles.balao,
-            item.enviado ? styles.balaoEnviado : styles.balaoRecebido
-        ]}>
-            <Text style={styles.textoBalao}>{item.texto}</Text>
+        <View
+            style={[
+                styles.balao,
+                item.enviado ? styles.balaoEnviado : styles.balaoRecebido
+            ]}
+        >
+            {/* Sempre mostra o remetente acima da mensagem */}
+            <Text style={styles.remetenteLabel}>{item.remetente}</Text>
+            {/* Botão deletar no canto superior direito */}
             <TouchableOpacity
                 style={styles.deleteBtn}
                 onPress={() => deletarMensagem(item.id)}
             >
                 <Icon name="delete-outline" size={18} color="#c00" />
             </TouchableOpacity>
+            <Text style={styles.textoBalao}>{item.texto}</Text>
         </View>
     );
 
@@ -147,8 +156,8 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         padding: 12,
         marginBottom: 8,
-        flexDirection: 'row',
-        alignItems: 'center',
+        position: 'relative',
+        alignSelf: 'flex-start',
     },
     balaoEnviado: {
         backgroundColor: '#388637',
@@ -161,11 +170,14 @@ const styles = StyleSheet.create({
     textoBalao: {
         color: '#222',
         fontSize: 16,
-        flex: 1,
+        marginTop: 4,
     },
     deleteBtn: {
-        marginLeft: 8,
+        position: 'absolute',
+        top: 6,
+        right: 6,
         padding: 2,
+        zIndex: 2,
     },
     inputRow: {
         flexDirection: 'row',
@@ -191,5 +203,10 @@ const styles = StyleSheet.create({
         backgroundColor: '#388637',
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    remetenteLabel: {
+        color: '#888',
+        fontSize: 12,
+        marginBottom: 2,
     },
 });

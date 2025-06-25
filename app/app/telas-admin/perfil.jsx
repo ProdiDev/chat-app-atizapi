@@ -74,6 +74,10 @@ export default function Perfil() {
                 <Icon name="account" size={22} color="#888" />
                 <Text style={styles.infoText}>{usuario.tipo}</Text>
             </View>
+            <TouchableOpacity style={styles.editBtn} onPress={() => router.push('../loginscreen/login')}>
+                <Icon name="logout" size={22} color="#fff" />
+                <Text style={styles.editBtnText}>Sair</Text>
+            </TouchableOpacity>
         </View>
     );
 }

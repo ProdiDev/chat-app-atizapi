@@ -32,15 +32,23 @@ export async function inserirMensagem(remetente, destinatario, mensagem, dataEnv
     return id;
 }
 
-export async function listarMensagens(remetente = null, destinatario = null) {
+// export async function listarMensagens(remetente = null, destinatario = null) {
+//     const banco = await abrirBancoChat();
+//     let query = "SELECT * FROM chat ORDER BY dataEnvio ASC";
+//     let params = [];
+//     if (remetente && destinatario) {
+//         query = "SELECT * FROM chat WHERE (remetente = ? AND destinatario = ?) OR (remetente = ? AND destinatario = ?) ORDER BY dataEnvio ASC";
+//         params = [remetente, destinatario, destinatario, remetente];
+//     }
+//     const dados = await banco.getAllAsync(query, params);
+//     await banco.closeAsync();
+//     return dados;
+// }
+
+export async function listarMensagens() {
     const banco = await abrirBancoChat();
-    let query = "SELECT * FROM chat ORDER BY dataEnvio ASC";
-    let params = [];
-    if (remetente && destinatario) {
-        query = "SELECT * FROM chat WHERE (remetente = ? AND destinatario = ?) OR (remetente = ? AND destinatario = ?) ORDER BY dataEnvio ASC";
-        params = [remetente, destinatario, destinatario, remetente];
-    }
-    const dados = await banco.getAllAsync(query, params);
+    const query = "SELECT * FROM chat ORDER BY dataEnvio ASC";
+    const dados = await banco.getAllAsync(query);
     await banco.closeAsync();
     return dados;
 }
@@ -50,4 +58,19 @@ export async function removerMensagemPorId(id) {
     await banco.runAsync("DELETE FROM chat WHERE id = ?", [id]);
     await banco.closeAsync();
     console.log(`Mensagem com id ${id} foi removida.`);
+}
+
+export async function excluirBancoChat() {
+    console.log("Excluindo banco de dados de chat...");
+    await SQLite.deleteDatabaseAsync('italugueis.db');
+    console.log("Banco de dados de chat excluído com sucesso.");
+}
+
+export async function fecharBancoChat(banco) {
+    if (banco) {
+        await banco.closeAsync();
+        console.log("Banco de chat fechado com sucesso.");
+    } else {
+        console.log("Nenhum banco de chat aberto para fechar.");
+    }
 }

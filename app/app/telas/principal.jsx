@@ -2,14 +2,17 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { listarMensagens, inserirMensagem, removerMensagemPorId } from '../../components/database/bancoChat';
-
-const EMAIL_USUARIO = 'ronaldinho@gmail.com'; // Troque pelo email do usuário logado
-const EMAIL_DESTINATARIO = 'admin@admin.com'; // Troque conforme necessário
+import { useAuth } from '../../components/AuthContext'; // adicione este import
 
 export default function HomeScreen() {
   const [mensagem, setMensagem] = useState('');
   const [conversa, setConversa] = useState([]);
   const flatListRef = useRef(null);
+  const { usuario } = useAuth(); // pega o usuário do contexto
+
+  // Substitua o EMAIL_USUARIO fixo pelo email do contexto
+  const EMAIL_USUARIO = usuario?.email || ''; // se não estiver logado, fica vazio
+  const EMAIL_DESTINATARIO = 'admin@admin.com'; // Troque conforme necessário
 
   // Carrega as mensagens do banco ao abrir a tela
   useEffect(() => {
@@ -17,11 +20,12 @@ export default function HomeScreen() {
   }, []);
 
   async function carregarMensagens() {
-    const msgs = await listarMensagens(EMAIL_USUARIO, EMAIL_DESTINATARIO);
+    const msgs = await listarMensagens();
     setConversa(msgs.map(msg => ({
       id: msg.id,
       texto: msg.mensagem,
       enviado: msg.remetente === EMAIL_USUARIO,
+      remetente: msg.remetente, // Adiciona o remetente para exibir
       dataEnvio: msg.dataEnvio
     })));
     setTimeout(() => {
@@ -64,6 +68,10 @@ export default function HomeScreen() {
         item.enviado ? styles.balaoEnviado : styles.balaoRecebido
       ]}
     >
+      {/* Mostra o remetente se não for o usuário logado */}
+      {!item.enviado && (
+        <Text style={styles.remetenteLabel}>{item.remetente}</Text>
+      )}
       <Text style={styles.textoBalao}>{item.texto}</Text>
     </TouchableOpacity>
   );
@@ -238,6 +246,11 @@ const styles = StyleSheet.create({
   textoBalao: {
     color: '#222',
     fontSize: 16,
+  },
+  remetenteLabel: {
+    color: '#888',
+    fontSize: 12,
+    marginBottom: 4,
   },
   inputRow: {
     flexDirection: 'row',

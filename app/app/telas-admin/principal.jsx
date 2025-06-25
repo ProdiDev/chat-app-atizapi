@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { abrirBanco, listarUsuarios } from '../../components/database/bancoUsuarios';
 import { router } from 'expo-router';
@@ -22,24 +22,6 @@ export default function HomeScreen() {
         <Text>Gerenciamento</Text>
       </View>
 
-      <TouchableOpacity
-        style={styles.chatBtn}
-        onPress={() => router.push('/telas-admin/chat-admin')}
-      >
-        <Icon name="chat" size={22} color="#fff" />
-        <Text style={styles.chatBtnText}>Ir para Chat Admin</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.chatBtn}
-        onPress={() => router.push('/telas-admin/perfil')}
-      >
-        <Icon name="chat" size={22} color="#fff" />
-        <Text style={styles.chatBtnText}>Perfil</Text>
-      </TouchableOpacity>
-
-
-
       <FlatList
         data={usuarios}
         keyExtractor={item => item.id}
@@ -56,6 +38,23 @@ export default function HomeScreen() {
           </Text>
         }
       />
+
+      <TouchableOpacity
+        style={styles.chatBtn}
+        onPress={() => router.push('/telas-admin/chat-admin')}
+      >
+        <Icon name="chat" size={22} color="#fff" />
+        <Text style={styles.chatBtnText}>Ir para Chat Admin</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.chatBtn}
+        onPress={() => router.push('/telas-admin/perfil')}
+      >
+        <Icon name="chat" size={22} color="#fff" />
+        <Text style={styles.chatBtnText}>Perfil</Text>
+      </TouchableOpacity>
+
     </SafeAreaView>
   );
 }
